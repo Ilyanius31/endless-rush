@@ -101,3 +101,46 @@ h2 { font-size: 5cqw; letter-spacing: 0.3cqw; margin: 4cqw 0; }
   .dialog-card { padding: 4cqw; }
   .dialog h2 { font-size: max(12px, 5cqw); }
 }
+
+/* Панель навыка оставляет свободной нижнюю часть трассы с игроком. */
+.menu .brand { margin-top: 5cqw; }
+.menu .tagline { margin-top: 4cqw; }
+.menu .best-card { margin-top: 5cqw; }
+.menu .tutorial { margin-top: 2cqw; }
+.settings { width: 100%; display: flex; gap: 2cqw; margin-top: 3cqw; }
+.settings button { flex: 1; min-height: 44px; border: 1px solid #34425c; border-radius: 8px; background: #111a2c; color: #b9d3e6; font-size: max(10px, 2.5cqw); }
+.settings button[aria-pressed="true"] { border-color: #438b99; }
+.skills { position: absolute; left: 6cqw; right: 6cqw; top: 23cqw; padding: 2cqw 3cqw; border: 1px solid #294457; border-radius: 9px; background: #080c19dc; pointer-events: none; font-size: max(10px, 2.5cqw); }
+.skills > div { display: flex; align-items: center; gap: 2cqw; }
+.skills strong { color: #52f6ff; font-variant-numeric: tabular-nums; }
+#multiplier { margin-left: auto; font-size: 4cqw; color: #fb85df; }
+.overdrive-row { margin-top: 1cqw; font-size: 2.4cqw; letter-spacing: .2cqw; }
+#charge-text { margin-left: auto; }
+#charge { width: 100%; height: 5px; border: none; accent-color: #52f6ff; display: block; margin-top: 2cqw; }
+#charge::-webkit-progress-bar { background: #27344c; border-radius: 8px; }
+#charge::-webkit-progress-value { background: #52f6ff; border-radius: 8px; }
+.skills[data-overdrive="true"] { border-color: #ff72d4; box-shadow: 0 0 20px #ff72d433; }
+.skills[data-overdrive="true"] #charge::-webkit-progress-value { background: #ff72d4; }
+.feedback { position: absolute; top: 69%; left: 2%; right: 2%; text-align: center; color: #52f6ff; font-weight: bold; font-size: 5cqw; letter-spacing: .3cqw; text-shadow: 0 2px 8px #000, 0 0 16px #52f6ff66; pointer-events: none; }
+.feedback[data-rating="PERFECT"] { color: #ff93dc; }
+.feedback[data-rating="ULTRA_PERFECT"] { color: #fff2a0; font-size: 5.5cqw; }
+.pattern-warning { position: absolute; top: 25%; width: 100%; text-align: center; color: #ffe394; font-size: 3cqw; letter-spacing: .3cqw; pointer-events: none; }
+.lesson { position: absolute; top: 29%; left: 6%; right: 6%; background: #10182af2; border: 1px solid #477388; border-radius: 12px; padding: 3cqw; text-align: center; pointer-events: none; }
+.lesson small { font-size: 2.4cqw; color: #94aac4; }
+.lesson p { font-size: max(12px, 3.2cqw); line-height: 1.5; margin: 2cqw 0; }
+.lesson strong { font-size: 3cqw; color: #52f6ff; }
+.lesson > div { display: flex; gap: 2cqw; }
+.lesson button { pointer-events: auto; margin-top: 2cqw; }
+.stage[data-reduced="true"] * { animation: none !important; transition: none !important; }
+@media (max-height: 500px) {
+  .menu .tagline, .menu .tutorial { display: none; }
+  .menu .brand { margin-top: 0; }
+  .menu h1 { font-size: 16cqw; }
+  .menu .settings { margin-top: 2cqw; }
+  .menu .best-card { margin-top: 2cqw; padding: 2cqw; }
+  .menu .primary-button, .menu .secondary-button { margin-top: 2cqw; }
+  .menu { padding-top: 3cqw; }
+  .lesson { top: 30%; padding: 2cqw; }
+  .lesson p { font-size: 10px; line-height: 1.2; }
+  .dialog .settings { margin-top: 2cqw; }
+}

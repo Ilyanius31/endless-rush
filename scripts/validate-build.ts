@@ -32,7 +32,7 @@ export function validateBuild(target: BuildTarget, directory = resolve(`dist/${t
   if (!files.includes('index.html') || files.filter(file => file.endsWith('index.html')).length !== 1) throw new Error('Expected one index.html at archive root');
   const html = readFileSync(join(directory, 'index.html'), 'utf8');
   const info = JSON.parse(readFileSync(join(directory, 'build-info.json'), 'utf8')) as { target: string; base: string; milestone: number; sdkIntegrated: boolean };
-  if (info.target !== target || info.milestone !== 1 || info.sdkIntegrated !== false) throw new Error('Invalid milestone 1 build metadata');
+  if (info.target !== target || info.milestone !== 2 || info.sdkIntegrated !== false) throw new Error('Invalid milestone 2 build metadata');
   if (typeof info.base !== 'string' || (info.base !== './' && !/^\/[a-zA-Z0-9._/-]*\/$/.test(info.base) && info.base !== '/')) throw new Error('Invalid asset base');
   if (target === 'yandex' && info.base !== './') throw new Error('Yandex assets must use relative paths');
   if (!/<script[^>]+type="module"/.test(html)) throw new Error('Missing application entry point');
