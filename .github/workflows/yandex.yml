@@ -1,0 +1,12 @@
+name: Yandex ZIP foundation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Проверить и подготовить ZIP
+    uses: ./.github/workflows/ci.yml

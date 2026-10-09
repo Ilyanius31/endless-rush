@@ -1,0 +1,35 @@
+{
+  "name": "neon-rush-switch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
+    "build": "npm run typecheck && vite build --mode standalone && vite build --mode yandex",
+    "build:preview": "npm run typecheck && vite build --mode standalone",
+    "build:yandex": "npm run typecheck && vite build --mode yandex",
+    "preview": "vite preview --mode standalone --host 0.0.0.0 --port 4173 --strictPort",
+    "preview:yandex": "vite preview --mode yandex --host 0.0.0.0 --port 4174 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "lint": "eslint .",
+    "validate:build": "node scripts/validate-build.ts",
+    "package:yandex": "npm run build:yandex && node scripts/package-yandex.ts",
+    "validate:zip": "node scripts/validate-zip.ts"
+  },
+  "dependencies": {
+    "phaser": "4.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.0",
+    "@types/node": "26.6.4",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1",
+    "vite": "8.3.4",
+    "vitest": "5.0.3"
+  },
+  "engines": { "node": ">=24 <25 || >=26 <27" }
+}
