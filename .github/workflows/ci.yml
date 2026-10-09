@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Проверки и сборки
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build:preview
+      - run: npm run package:yandex
+      - run: npm run validate:build
+      - run: npm run validate:zip
+      - name: Установить Chromium для Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Проверить готовый Pages preview в браузере
+        run: npm run test:browser -- --config playwright.preview.config.ts
+      - name: Сохранить standalone preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: standalone-preview
+          path: dist/preview/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Сохранить ZIP для будущего Yandex-релиза
+        uses: actions/upload-artifact@v7
+        with:
+          name: neon-rush-yandex
+          path: artifacts/neon-rush-yandex.zip
+          if-no-files-found: error
+          retention-days: 14
+      - name: Сохранить снимки экрана и диагностику
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
