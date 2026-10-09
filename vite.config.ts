@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
     plugins: [{
       name: 'build-info',
       generateBundle() {
-        this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ target, base, milestone: 1, sdkIntegrated: false }) });
+        this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ target, base, milestone: 2, sdkIntegrated: false }) });
       },
     }],
   };

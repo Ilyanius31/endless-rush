@@ -13,7 +13,7 @@ function fixture(target: 'preview' | 'yandex', base: string): string {
   mkdirSync(join(root, 'assets'));
   writeFileSync(join(root, 'index.html'), `<script type="module" src="${base}assets/game.js"></script>`);
   writeFileSync(join(root, 'assets/game.js'), 'export {};');
-  writeFileSync(join(root, 'build-info.json'), JSON.stringify({ target, base, milestone: 1, sdkIntegrated: false }));
+  writeFileSync(join(root, 'build-info.json'), JSON.stringify({ target, base, milestone: 2, sdkIntegrated: false }));
   return root;
 }
 

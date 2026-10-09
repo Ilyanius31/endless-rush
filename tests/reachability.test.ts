@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RunModel, WORLD } from '../src/game/model';
 import { seededRandom } from '../src/game/random';
-import { chooseReachableLane, findSafeRoute, travelTime } from '../src/game/reachability';
+import { chooseReachableLane, findRouteFromPosition, findSafeRoute, travelTime } from '../src/game/reachability';
 import { sweptOrbCollision } from '../src/game/geometry';
 
 describe('достижимость трассы', () => {
@@ -60,16 +60,16 @@ describe('достижимость трассы', () => {
       run.start();
       run.elapsed = [0, 15, 45, 90][seed % 4];
       let lastId = -1;
-      for (let frame = 0; frame < 120 * 12; frame++) {
+      for (let frame = 0; frame < 120 * 16; frame++) {
         const obstacle = run.obstacles.find(item => !item.passed && item.y < WORLD.playerY + WORLD.playerRadius + WORLD.obstacleHeight / 2);
         if (obstacle && obstacle.lane === run.lane && obstacle.y > WORLD.playerY - run.speed * 0.3) run.switchLane();
         run.update(WORLD.fixedStep);
         if (run.state !== 'running') throw new Error(`Unfair sequence: seed=${seed}, frame=${frame}`);
-        const added = run.obstacles.find(item => item.id > lastId);
-        if (added) {
-          if (!findSafeRoute(run.obstacles, run.elapsed)) throw new Error(`No reachable route: seed=${seed}`);
-          lastId = added.id;
-          generated++;
+        const added = run.obstacles.filter(item => item.id > lastId);
+        if (added.length) {
+          if (!findRouteFromPosition(run.obstacles, run.elapsed, run.playerX, run.lane)) throw new Error(`No reachable route: seed=${seed}`);
+          lastId = Math.max(...added.map(item => item.id));
+          generated += added.length;
         }
       }
       if (run.passed < 6) throw new Error(`Insufficient obstacles: seed=${seed}`);

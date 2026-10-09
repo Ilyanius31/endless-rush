@@ -44,3 +44,13 @@ export function sweptOrbCollision(playerX0: number, playerX1: number, obstacleX:
   }
   return false;
 }
+
+export function sweptCircleCollection(x0: number, x1: number, objectX: number, y0: number, y1: number, radius: number): boolean {
+  const startX = x0 - objectX;
+  const startY = WORLD.playerY - y0;
+  const dx = x1 - x0;
+  const dy = y0 - y1;
+  const length = dx * dx + dy * dy;
+  const fraction = length === 0 ? 0 : Math.max(0, Math.min(1, -(startX * dx + startY * dy) / length));
+  return (startX + fraction * dx) ** 2 + (startY + fraction * dy) ** 2 <= (WORLD.playerRadius + radius) ** 2;
+}

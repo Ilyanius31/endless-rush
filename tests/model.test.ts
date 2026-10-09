@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RunModel, WORLD } from '../src/game/model';
+import { PATTERNS } from '../src/game/config';
 import { seededRandom } from '../src/game/random';
 
 function advance(run: RunModel, seconds: number): void {
@@ -157,17 +158,17 @@ describe('RunModel', () => {
         const incoming = run.obstacles.find(obstacle => !obstacle.passed && obstacle.y <= WORLD.playerY + 36);
         if (incoming && incoming.lane === run.lane && incoming.y > WORLD.playerY - run.speed * 0.3) run.switchLane();
         run.update(1 / 120);
-        const spawned = run.obstacles.find(obstacle => obstacle.id > lastId);
-        if (spawned) {
+        const spawned = run.obstacles.filter(obstacle => obstacle.id > lastId);
+        if (spawned.length) {
           expect(run.elapsed - lastSpawnTime).toBeGreaterThanOrEqual(WORLD.minSpawnGap - 1 / 120);
           expect((WORLD.playerY - WORLD.spawnY) / run.speed).toBeGreaterThan(1.5);
           lastSpawnTime = run.elapsed;
-          lastId = spawned.id;
-          spawnCount++;
+          lastId = Math.max(...spawned.map(item => item.id));
+          spawnCount += spawned.length;
         }
         expect(run.state).toBe('running');
         expect(run.speed).toBeLessThanOrEqual(WORLD.maxSpeed);
-        expect(run.obstacles.length).toBeLessThanOrEqual(5);
+        expect(run.obstacles.length).toBeLessThanOrEqual(PATTERNS.maxObstacles);
       }
       expect(run.speed).toBe(WORLD.maxSpeed);
       expect(spawnCount).toBeGreaterThan(100);

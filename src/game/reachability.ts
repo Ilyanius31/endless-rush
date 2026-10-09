@@ -1,5 +1,6 @@
 import { speedAt, WORLD } from './config';
 import type { Lane } from './config';
+import { sweptOrbCollision } from './geometry';
 
 interface Barrier { lane: Lane; y: number }
 interface Window { lane: Lane; start: number; end: number }
@@ -70,4 +71,21 @@ export function chooseReachableLane(barriers: readonly Barrier[], elapsed: numbe
     if (findSafeRoute([...barriers, { lane, y: WORLD.spawnY }], elapsed)) return lane;
   }
   return null;
+}
+
+export function findRouteFromPosition(barriers: readonly Barrier[], elapsed: number, playerX: number, targetLane: Lane): SafeRoute | null {
+  let x = playerX;
+  let distance = 0;
+  let time = 0;
+  const target = WORLD.lanes[targetLane];
+  const movement = (WORLD.lanes[1] - WORLD.lanes[0]) * WORLD.fixedStep / WORLD.switchDuration;
+  while (Math.abs(x - target) > 1e-8) {
+    const previousX = x;
+    const previousDistance = distance;
+    time += WORLD.fixedStep;
+    x += Math.sign(target - x) * Math.min(Math.abs(target - x), movement);
+    distance += speedAt(elapsed + time) * WORLD.fixedStep;
+    for (const barrier of barriers) if (sweptOrbCollision(previousX, x, WORLD.lanes[barrier.lane], barrier.y + previousDistance, barrier.y + distance)) return null;
+  }
+  return findSafeRoute(barriers.map(barrier => ({ lane: barrier.lane, y: barrier.y + distance })), elapsed + time, targetLane);
 }

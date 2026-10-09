@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+declare global { interface Window { __audioContexts?: AudioContext[] } }
+
 test('меню, запуск, клавиатура, пауза, столкновение, перезапуск и рекорд', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -110,4 +112,69 @@ test('узкий экран, изменение высоты браузера и
     return { width: node.width, height: node.height };
   });
   expect(canvasSize).toEqual({ width: 420, height: 760 });
+});
+
+test('интерактивное обучение: точность, комбо, Overdrive, кристаллы и настройки', async ({ page }) => {
+  test.setTimeout(45_000);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.addInitScript(() => {
+    const contexts: AudioContext[] = [];
+    Object.defineProperty(window, '__audioContexts', { value: contexts });
+    const NativeAudioContext = window.AudioContext;
+    window.AudioContext = class extends NativeAudioContext {
+      constructor(options?: AudioContextOptions) { super(options); contexts.push(this); }
+    };
+  });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('./');
+  await expect(page.locator('#stage')).toHaveAttribute('data-reduced', 'true');
+  expect(await page.evaluate(() => window.__audioContexts?.length)).toBe(0);
+  const sound = page.locator('#menu [data-setting="sound"]');
+  await sound.click(); await expect(sound).toHaveAttribute('aria-pressed', 'false');
+  await sound.click(); await expect(sound).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#learn').click();
+  await expect(page.locator('#stage')).toHaveAttribute('data-practice', 'true');
+  for (let step = 0; step < 6; step++) {
+    await expect(page.locator('#lesson')).toHaveAttribute('data-step', String(step));
+    await expect(page.locator('#lesson')).toHaveAttribute('data-ready', 'true');
+    const previousLane = await page.locator('#stage').getAttribute('data-lane');
+    await page.locator('canvas').click({ position: { x: 80, y: 440 } });
+    await expect(page.locator('#stage')).not.toHaveAttribute('data-lane', previousLane!);
+    await expect(page.locator('#lesson')).toHaveAttribute('data-complete', 'true');
+    if (step >= 2) {
+      await expect(page.locator('#feedback')).toContainText(['GOOD', 'PERFECT', 'ULTRA PERFECT', 'PERFECT'][step - 2]);
+      await expect(page.locator('#combo')).toHaveText(String(step - 1));
+    }
+    if (step === 4) await expect(page.locator('#multiplier')).toHaveText('×1.5');
+    if (step === 5) {
+      await expect(page.locator('#skills')).toHaveAttribute('data-overdrive', 'true');
+      await expect(page.locator('#multiplier')).toHaveText('×3');
+      await expect(page.locator('#stage')).toHaveAttribute('data-collected', '5');
+      await page.locator('#pause').click();
+      const remaining = await page.locator('#charge-text').textContent();
+      await page.waitForTimeout(250);
+      await expect(page.locator('#charge-text')).toHaveText(remaining!);
+      await page.locator('#dialog-primary').click();
+      await page.screenshot({ path: 'test-results/mobile-overdrive.png' });
+      await page.locator('#pause').click();
+      await page.locator('#dialog [data-setting="effects"]').click();
+      await page.locator('#dialog-primary').click();
+      await expect(page.locator('#stage')).toHaveAttribute('data-reduced', 'false');
+    }
+    await page.locator('#lesson-next').click();
+  }
+  await expect(page.locator('#stage')).toHaveAttribute('data-practice', 'false');
+  await expect(page.locator('#combo')).toHaveText('0');
+  await expect(page.locator('#hud-best')).toHaveText('0');
+  await page.locator('#pause').click();
+  await page.locator('#menu-button').click();
+  await page.locator('#language').click();
+  await page.locator('#learn').click();
+  await expect(page.locator('#lesson-text')).toContainText('Tap the track');
+  expect(await page.evaluate(() => window.__audioContexts?.map(context => context.state))).toEqual(['running']);
+  await page.locator('#lesson-skip').click();
+  await expect(page.locator('#lesson')).toBeHidden();
+  expect(errors).toEqual([]);
 });
